@@ -20,9 +20,11 @@
 using namespace std;
 
 void ParticleFilter::init(double x, double y, double theta, double std[]) {
-	// TODO: Set the number of particles. Initialize all particles to first position (based on estimates of 
-	//   x, y, theta and their uncertainties from GPS) and all weights to 1. 
-	// Add random Gaussian noise to each particle.
+	// TODO: Set the number of particles.
+  // TODO: Initialize all particles to first position
+  // (based on estimates of x, y, theta and their uncertainties from GPS)
+  // TODO: Initialize all weights to 1.
+	// TODO: Add random Gaussian noise to each particle.
 	// NOTE: Consult particle_filter.h for more information about this method (and others in this file).
 
 }
@@ -75,6 +77,8 @@ Particle ParticleFilter::SetAssociations(Particle& particle, const std::vector<i
     particle.associations= associations;
     particle.sense_x = sense_x;
     particle.sense_y = sense_y;
+    // me
+//    return particle;
 }
 
 string ParticleFilter::getAssociations(Particle best)
@@ -84,7 +88,7 @@ string ParticleFilter::getAssociations(Particle best)
     copy( v.begin(), v.end(), ostream_iterator<int>(ss, " "));
     string s = ss.str();
     s = s.substr(0, s.length()-1);  // get rid of the trailing space
-    return s;
+  return s;
 }
 string ParticleFilter::getSenseX(Particle best)
 {
