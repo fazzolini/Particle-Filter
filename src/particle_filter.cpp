@@ -16,6 +16,7 @@
 #include <iterator>
 
 #include "particle_filter.h"
+#include "helper_functions.h"
 
 using namespace std;
 
@@ -108,11 +109,46 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 }
 
 void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::vector<LandmarkObs>& observations) {
-	// TODO: Find the predicted measurement that is closest to each observed measurement
-  // TODO: assign the observed measurement to this particular landmark
+	// TODO: Find the predicted measurement that is closest to each observed measurement [DONE]
+  // TODO: assign the observed measurement to this particular landmark [DONE]
 	// NOTE: this method will NOT be called by the grading code. But you will probably find it useful to 
 	//   implement this method and use it as a helper during the updateWeights phase.
 
+  /**
+   * Approach:
+   * 1) for each observation
+   * 2) go through all predictions and find closest one's id
+   * 3) set this observation's id to the found id
+   * Note: this is a double loop with O(m*n) complexity
+   */
+
+  // Loop through observations
+  for (int i = 0; i < observations.size(); ++i) {
+    // Store current observation
+    LandmarkObs obs = observations[i];
+
+    // Keep track of distance and id (initialize to unrealistic default values)
+    double smallest_distance = numeric_limits<double>.max(); // set to unrealistically large value
+    int closest_id = -1; // set to impossible default value
+
+    // Loop through predictions
+    for (int j = 0; j < predicted.size(); ++j) {
+      // Store current prediction
+      LandmarkObs pred = predicted[j];
+
+      // Calculate distance
+      double distance = dist(obs.x, obs.y, pred.x, pred.y);
+
+      // Update if distance is smaller than current smallest_distance
+      if (distance < smallest_distance) {
+        smallest_distance = distance;
+        closest_id = obs.id;
+      }
+
+      // Store current observation's id to closest prediction's id
+      observations[i].id = closest_id;
+    }
+  }
 }
 
 void ParticleFilter::updateWeights(double sensor_range, double std_landmark[], 
