@@ -7,6 +7,9 @@ src/particle_filter_sol.cpp
 src/solutions
 # particle_filter.cpp
 
+# CLion's CMakeLists.txt
+CMakeLists.txt
+
 # silly macOS
 .DS_Store
 
