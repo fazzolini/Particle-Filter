@@ -67,11 +67,44 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 }
 
 void ParticleFilter::prediction(double delta_t, double std_pos[], double velocity, double yaw_rate) {
-	// TODO: Add measurements to each particle and add random Gaussian noise.
+	// TODO: Add measurements to each particle and add random Gaussian noise [DONE]
 	// NOTE: When adding noise you may find std::normal_distribution and std::default_random_engine useful.
 	//  http://en.cppreference.com/w/cpp/numeric/random/normal_distribution
 	//  http://www.cplusplus.com/reference/random/default_random_engine/
 
+  // Create random number generator
+  default_random_engine rand_gen;
+
+  // Define distribution objects
+  normal_distribution<double> x_noise_gen(0, std[0]);
+  normal_distribution<double> y_noise_gen(0, std[1]);
+  normal_distribution<double> theta_noise_gen(0, std[2]);
+
+
+  // Iterate through particles
+  for (int i = 0; i < num_particles; ++i) {
+    // Predict particle's next position according to the motion model
+
+    // For easier later use
+    double th0 = particles[i].theta;
+
+    // When theta_dot (yaw_rate) is 0 (or close), use special solution (avoid division by zero)
+    if (fabs(yaw_rate) < 0.001) {
+      particles[i].x += velocity * delta_t * cos(th0);
+      particles[i].y += velocity * delta_t * sin(th0);
+      // Don't update theta, because it is close to zero, so stays constant
+    } else {
+      // Use standard bicycle motion model
+      particles[i].x += velocity / yaw_rate * (sin(th0 + yaw_rate * delta_t) - sin(th0));
+      particles[i].y += velocity / yaw_rate * (cos(th0) - cos(th0 + yaw_rate * delta_t));
+      particles[i].theta += yaw_rate * delta_t;
+    }
+
+    // Add noise to updates
+    particles[i].x += x_noise_gen(rand_gen);
+    particles[i].y += y_noise_gen(rand_gen);
+    particles[i].theta += theta_noise_gen(rand_gen);
+  }
 }
 
 void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::vector<LandmarkObs>& observations) {
