@@ -20,13 +20,50 @@
 using namespace std;
 
 void ParticleFilter::init(double x, double y, double theta, double std[]) {
-	// TODO: Set the number of particles.
-  // TODO: Initialize all particles to first position
+	// TODO: Set the number of particles [DONE]
+  // TODO: Initialize all particles to first position [DONE]
   // (based on estimates of x, y, theta and their uncertainties from GPS)
-  // TODO: Initialize all weights to 1.
-	// TODO: Add random Gaussian noise to each particle.
+  // TODO: Initialize all weights to 1 [DONE]
+	// TODO: Add random Gaussian noise to each particle [DONE]
 	// NOTE: Consult particle_filter.h for more information about this method (and others in this file).
 
+  // 1) Set the number of particles
+  num_particles = 1000;
+  
+  // 2) Initialize particles to initial positions x and y
+  for (int i = 0; i < num_particles; ++i) {
+    // Initialize new particle
+    Particle p;
+
+    // Set id, position and weight to default values (no noise)
+    p.id = i;
+    p.x = x;
+    p.y = y;
+    p.theta = theta;
+    p.weight = 1.0;
+
+    // Add to filter
+    particles.push_back(p);
+  }
+
+  // 3) Add noise
+  // Create random number generator
+  default_random_engine rand_gen;
+
+  // Define distribution objects
+  normal_distribution<double> x_noise_gen(0, std[0]);
+  normal_distribution<double> y_noise_gen(0, std[1]);
+  normal_distribution<double> theta_noise_gen(0, std[2]);
+
+  // Add noise from normal distributions to particles
+  for (int j = 0; j < num_particles; ++j) {
+    particles[j].x += x_noise_gen(rand_gen);
+    particles[j].y += y_noise_gen(rand_gen);
+    particles[j].theta += theta_noise_gen(rand_gen);
+  }
+
+  // Set initialized flag
+  is_initialized = true;
 }
 
 void ParticleFilter::prediction(double delta_t, double std_pos[], double velocity, double yaw_rate) {
