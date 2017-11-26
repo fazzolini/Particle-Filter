@@ -21,15 +21,15 @@
 using namespace std;
 
 void ParticleFilter::init(double x, double y, double theta, double std[]) {
-  // TODO: Set the number of particles [DONE]
-  // TODO: Initialize all particles to first position [DONE]
+  // TODO: Set the number of particles [DONE][OK]
+  // TODO: Initialize all particles to first position [DONE][OK]
   // (based on estimates of x, y, theta and their uncertainties from GPS)
-  // TODO: Initialize all weights to 1 [DONE]
-  // TODO: Add random Gaussian noise to each particle [DONE]
+  // TODO: Initialize all weights to 1 [DONE][OK]
+  // TODO: Add random Gaussian noise to each particle [DONE][OK]
   // NOTE: Consult particle_filter.h for more information about this method (and others in this file).
 
   // 1) Set the number of particles
-  num_particles = 1000;
+  num_particles = 100;
 
   // 2) Initialize particles to initial positions x and y
   for (int i = 0; i < num_particles; ++i) {
@@ -68,7 +68,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 }
 
 void ParticleFilter::prediction(double delta_t, double std_pos[], double velocity, double yaw_rate) {
-  // TODO: Add measurements to each particle and add random Gaussian noise [DONE]
+  // TODO: Add measurements to each particle and add random Gaussian noise [DONE][OK]
   // NOTE: When adding noise you may find std::normal_distribution and std::default_random_engine useful.
   //  http://en.cppreference.com/w/cpp/numeric/random/normal_distribution
   //  http://www.cplusplus.com/reference/random/default_random_engine/
@@ -90,7 +90,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
     double th0 = particles[i].theta;
 
     // When theta_dot (yaw_rate) is 0 (or close), use special solution (avoid division by zero)
-    if (fabs(yaw_rate) < 0.001) {
+    if (fabs(yaw_rate) < 0.0001) {
       particles[i].x += velocity * delta_t * cos(th0);
       particles[i].y += velocity * delta_t * sin(th0);
       // Don't update theta, because it is close to zero, so stays constant
@@ -109,8 +109,8 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 }
 
 void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::vector<LandmarkObs> &observations) {
-  // TODO: Find the predicted measurement that is closest to each observed measurement [DONE]
-  // TODO: assign the observed measurement to this particular landmark [DONE]
+  // TODO: Find the predicted measurement that is closest to each observed measurement [DONE][FIXED]
+  // TODO: assign the observed measurement to this particular landmark [DONE][OK]
   // NOTE: this method will NOT be called by the grading code. But you will probably find it useful to
   //   implement this method and use it as a helper during the updateWeights phase.
 
@@ -142,7 +142,7 @@ void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::ve
       // Update if distance is smaller than current smallest_distance
       if (distance < smallest_distance) {
         smallest_distance = distance;
-        closest_id = obs.id;
+        closest_id = pred.id;
       }
 
       // Store current observation's id to closest prediction's id
