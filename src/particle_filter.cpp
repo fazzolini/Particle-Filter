@@ -320,6 +320,11 @@ Particle ParticleFilter::SetAssociations(Particle &particle, const std::vector<i
   particle.associations = associations;
   particle.sense_x = sense_x;
   particle.sense_y = sense_y;
+
+  // Temporary fix, to suppress warning
+  // Remove when implementing
+  Particle p;
+  return p;
 }
 
 string ParticleFilter::getAssociations(Particle best) {
