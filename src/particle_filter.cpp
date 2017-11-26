@@ -153,20 +153,57 @@ void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::ve
 
 void ParticleFilter::updateWeights(double sensor_range, double std_landmark[], 
 		const std::vector<LandmarkObs> &observations, const Map &map_landmarks) {
-	// TODO: Update the weights of each particle using a mult-variate Gaussian distribution. You can read
-	//   more about this distribution here: https://en.wikipedia.org/wiki/Multivariate_normal_distribution
+	// TODO: Update the weights of each particle using a multi-variate Gaussian distribution
+  // You can read more about this distribution here:
+  //    https://en.wikipedia.org/wiki/Multivariate_normal_distribution
 	// NOTE: The observations are given in the VEHICLE'S coordinate system. Your particles are located
-	//   according to the MAP'S coordinate system. You will need to transform between the two systems.
-	//   Keep in mind that this transformation requires both rotation AND translation (but no scaling).
-	//   The following is a good resource for the theory:
-	//   https://www.willamette.edu/~gorr/classes/GeneralGraphics/Transforms/transforms2d.htm
-	//   and the following is a good resource for the actual equation to implement (look at equation 
-	//   3.33
-	//   http://planning.cs.uiuc.edu/node99.html
+	//    according to the MAP'S coordinate system. You will need to transform between the two systems.
+	//    Keep in mind that this transformation requires both rotation AND translation (but no scaling).
+	//    The following is a good resource for the theory:
+	//    https://www.willamette.edu/~gorr/classes/GeneralGraphics/Transforms/transforms2d.htm
+	//    and the following is a good resource for the actual equation to implement (look at equation
+	//    3.33
+	//    http://planning.cs.uiuc.edu/node99.html
+
+  /**
+   * Observations: vehicle's frame
+   * Particles: map's frame
+   *
+   * Clarifying note to oneself:
+   *    - we have a car whose position we don't know
+   *    - observations are relative to the car's frame
+   *    - for each particle, we assume the particle is the car
+   *    - then we need to translate observation from particle frame to map frame
+   *      (use homogeneous transform provided in lesson)
+   *    - now we have observations with map coordinates
+   *    - find closest landmark for each such transformed observation (each observation has multiple points)
+   *    - assume the landmark is true position
+   *    - use gaussian to get probability that observation point belongs to this landmark
+   *    - return product of all observation points probabilities as weight of this particle
+   *
+   * This method seems like a lot of things to do.
+   */
+
+  // Goal: iterate through all particles and calculate each particle's weight
+  for (int i = 0; i < particles.size(); ++i) {
+
+    // This will store transformed observations
+    vector<LandmarkObs> observations_transformed;
+
+    // Goal: iterate through all observations and transform them into map coordinates
+    for (int j = 0; j < observations.size(); ++j) {
+      // Goal: associate landmark IDs with transformed observation's point
+
+      // Goal: use gaussian to calculate probability (weight)
+
+      // Multiply particle's weight by weight calculated in preceding step
+
+    }
+  }
 }
 
 void ParticleFilter::resample() {
-	// TODO: Resample particles with replacement with probability proportional to their weight. 
+	// TODO: Resample particles with replacement with probability proportional to their weight
 	// NOTE: You may find std::discrete_distribution helpful here.
 	//   http://en.cppreference.com/w/cpp/numeric/random/discrete_distribution
 
@@ -175,7 +212,7 @@ void ParticleFilter::resample() {
 Particle ParticleFilter::SetAssociations(Particle& particle, const std::vector<int>& associations, 
                                      const std::vector<double>& sense_x, const std::vector<double>& sense_y)
 {
-    //particle: the particle to assign each listed association, and association's (x,y) world coordinates mapping to
+    // particle: the particle to assign each listed association, and association's (x,y) world coordinates mapping to
     // associations: The landmark id that goes along with each listed association
     // sense_x: the associations x mapping already converted to world coordinates
     // sense_y: the associations y mapping already converted to world coordinates
@@ -183,8 +220,6 @@ Particle ParticleFilter::SetAssociations(Particle& particle, const std::vector<i
     particle.associations= associations;
     particle.sense_x = sense_x;
     particle.sense_y = sense_y;
-    // me
-//    return particle;
 }
 
 string ParticleFilter::getAssociations(Particle best)
