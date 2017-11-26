@@ -268,6 +268,46 @@ void ParticleFilter::resample() {
    * Use resampling wheel as taught in class by Sebastian
    */
 
+  // Store resampled particles
+  vector<Particle> resampled_particles;
+
+  // Make a list of weights for the wheel
+  vector<double> weights;
+  for (int i = 0; i < particles.size(); ++i) {
+    weights.push_back(particles[i].weight);
+  }
+
+  // Determine largest weight
+  // max_element returns pointer so need to dereference
+  double max_weight = *max_element(weights.begin(), weights.end());
+
+  // Create random number generator
+  default_random_engine rand_gen;
+
+  // Distributions for wheel position and beta
+  uniform_int_distribution<int> dist_wheel_pos(0, particles.size() - 1);
+  uniform_real_distribution<float> dist_beta(0, max_weight);
+
+  // Starting wheel position and beta
+  int wheel_position = dist_wheel_pos(rand_gen);
+  double beta = 0.0;
+
+  // Resample using the wheel
+  for (int j = 0; j < particles.size(); ++j) {
+    // Random beta up to twice the largest weight
+    beta += dist_beta(rand_gen) * 2.0;
+    while (beta > weights[wheel_position]) {
+      // Reduce beta by current weight size
+      beta -= weights[wheel_position];
+      // Advance position (use modulo to make it a 'wheel')
+      wheel_position = static_cast<int>((wheel_position + 1) % particles.size());
+    }
+    // Sample particle at current wheel position
+    resampled_particles.push_back(particles[wheel_position]);
+  }
+
+  // Update particles with resampled particles
+  particles = resampled_particles;
 }
 
 Particle ParticleFilter::SetAssociations(Particle &particle, const std::vector<int> &associations,
