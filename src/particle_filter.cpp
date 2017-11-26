@@ -186,18 +186,75 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
   // Goal: iterate through all particles and calculate each particle's weight
   for (int i = 0; i < particles.size(); ++i) {
+    // Select current particle
+    Particle p = particles[i];
+    double p_x = p.x;
+    double p_y = p.y;
+    double p_th = p.theta;
+
+    // This will store landmarks that are within sensor_range of the particle
+    vector<LandmarkObs> landmarks;
 
     // This will store transformed observations
     vector<LandmarkObs> observations_transformed;
 
+    // Goal: only select landmarks within sensor_range from current particle
+    for (int k = 0; k < map_landmarks.landmark_list.size(); ++k) {
+      // Current landmark
+      Map::single_landmark_s l = map_landmarks.landmark_list[k];
+
+      // Check distance from current particle
+      double distance = dist(p_x, p_y, l.x_f, l.y_f);
+
+      // Select the landmark
+      if (distance <= sensor_range) {
+        landmarks.push_back(LandmarkObs{l.id_i, l.x_f, l.y_f});
+      }
+    }
+
     // Goal: iterate through all observations and transform them into map coordinates
     for (int j = 0; j < observations.size(); ++j) {
-      // Goal: associate landmark IDs with transformed observation's point
+      // Use homogeneous transform to get map coordinates of observation
+      double x_map = cos(p_th) * observations[j].x - sin(p_th) * observations[j].y + p_x;
+      double y_map = sin(p_th) * observations[j].x + cos(p_th) * observations[j].y + p_y;
+      observations_transformed.push_back(LandmarkObs{observations[j].id, x_map, y_map});
+    }
+
+    // Goal: associate landmark IDs with transformed observation's point
+    dataAssociation(landmarks, observations_transformed);
+
+    // We will multiply weights, so start at 1 (initial value)
+    particles[i].weight = 1.0;
+
+    // Iterate through all transformed observations and calculate weights
+    for (int m = 0; m < observations_transformed.size(); ++m) {
+      // For easier access
+      double obs_x = observations_transformed[m].x;
+      double obs_y = observations_transformed[m].y;
+      int obs_id = observations_transformed[m].id;
+
+      // To store landmark coordinates
+      double l_x;
+      double l_y;
+
+      // Find coordinates of landmark for this observation
+      for (int j = 0; j < landmarks.size(); ++j) {
+        if (landmarks[j].id == obs_id) {
+          l_x = landmarks[j].x;
+          l_y = landmarks[j].y;
+        }
+      }
 
       // Goal: use gaussian to calculate probability (weight)
+      double sd_x = std_landmark[0];
+      double sd_y = std_landmark[1];
+      double normalizer = 1.0 / (2.0 * M_PI * sd_x * sd_y);
+      double power_term = -(pow(l_x - obs_x, 2) / (2 * sd_x * sd_x)) - (pow(l_y - obs_y, 2) / (2 * sd_y * sd_y));
+      double proba = normalizer * exp(power_term);
 
       // Multiply particle's weight by weight calculated in preceding step
-
+      particles[i].weight *= proba;
+      
     }
   }
 }
