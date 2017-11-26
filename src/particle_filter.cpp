@@ -77,9 +77,9 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
   default_random_engine rand_gen;
 
   // Define distribution objects
-  normal_distribution<double> x_noise_gen(0, std[0]);
-  normal_distribution<double> y_noise_gen(0, std[1]);
-  normal_distribution<double> theta_noise_gen(0, std[2]);
+  normal_distribution<double> x_noise_gen(0, std_pos[0]);
+  normal_distribution<double> y_noise_gen(0, std_pos[1]);
+  normal_distribution<double> theta_noise_gen(0, std_pos[2]);
 
 
   // Iterate through particles
@@ -128,7 +128,7 @@ void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::ve
     LandmarkObs obs = observations[i];
 
     // Keep track of distance and id (initialize to unrealistic default values)
-    double smallest_distance = numeric_limits<double>.max(); // set to unrealistically large value
+    double smallest_distance = numeric_limits<double>::max(); // set to unrealistically large value
     int closest_id = -1; // set to impossible default value
 
     // Loop through predictions
